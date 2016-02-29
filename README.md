@@ -1,7 +1,25 @@
-# php-base32
+[![version][packagist-badge]][packagist]
+[![license][license-badge]][license]
+[![Travis][travis-badge]][travis]
+[![Coverage][coverage-badge]][coverage]
+[![Scrunitizer][scrutinizer-badge]][scrutinizer]
+[![Issues][issue-badge]][issues]
+[![SensioLabsInsight][sensio-badge]][sensio]
 
-[![Packagist](https://img.shields.io/packagist/v/chillerlan/php-base32.svg?style=flat-square)](https://packagist.org/packages/chillerlan/php-base32)
-![License](https://img.shields.io/packagist/l/chillerlan/php-base32.svg?style=flat-square)
+[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-base32.svg
+[packagist]: https://packagist.org/packages/chillerlan/php-base32
+[license-badge]: https://img.shields.io/packagist/l/chillerlan/php-base32.svg
+[license]: https://github.com/codemasher/php-base32/blob/master/LICENSE
+[travis-badge]: https://travis-ci.org/codemasher/php-base32.svg?branch=master
+[travis]: https://travis-ci.org/codemasher/php-base32
+[coverage-badge]: https://codecov.io/github/codemasher/php-base32/coverage.svg?branch=master
+[coverage]: https://codecov.io/github/codemasher/php-base32
+[scrutinizer-badge]: https://scrutinizer-ci.com/g/codemasher/php-base32/badges/quality-score.png?b=master
+[scrutinizer]: https://scrutinizer-ci.com/g/codemasher/php-base32
+[sensio-badge]: https://img.shields.io/sensiolabs/i/0baf987e-6197-4b01-b277-0e5862862a1b.svg
+[sensio]: https://insight.sensiolabs.com/projects/0baf987e-6197-4b01-b277-0e5862862a1b
+
+# php-base32
 
 A Base32 implementation based on the one by [Shannon Wynter](https://fremnet.net/article/215/class-base32).
 

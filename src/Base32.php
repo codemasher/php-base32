@@ -1,35 +1,24 @@
 <?php
 /**
- * class.Base32.php5
- * Provide Base32 conversion class
+ * Class Base32
  *
- * @author    Shannon Wynter {@link http://fremnet.net/contact}
- * @version   0.4
- * @copyright Copyright &copy; 2006 Shannon Wynter
- * @link      http://fremnet.net
- *
+ * @filesource   Base32.php
+ * @author       Shannon Wynter {@link http://fremnet.net/contact}
+ * @author       Smiley <smiley@chillerlan.net>
+ * @copyright    Copyright (c) 2006 Shannon Wynter
+ */
+
+namespace chillerlan\Base32;
+
+/**
  * Class to provide base32 encoding/decoding of strings
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * ChangeLog
  * -----------
- * version 0.4, 2016-02-29, smiley {@link https://github.com/codemasher}
+ * version 1.1.0, 2016-02-29, smiley {@link https://github.com/codemasher}
  *  - cleanup
  *  - separated character set class
- * version 0.3, 2015-12-06, smiley {@link https://github.com/codemasher}
+ * version 1.0.0, 2015-12-06, smiley {@link https://github.com/codemasher}
  *  - static all the things!
  * version 0.2, 2008-08-07, Shannon Wynter {@link http://fremnet.net/contact}
  *  - Fixed transposition of Y and Z in csRFC3548
@@ -39,16 +28,6 @@
  * Notes
  * -----------
  * For dealing with humans it's probably best to use csSafe rather then csRFC3548
- *
- */
-
-namespace chillerlan\Base32;
-
-/**
- * Class Base32
- *
- * Provides Base32 conversion
- *
  */
 class Base32{
 
@@ -57,7 +36,6 @@ class Base32{
 	 *
 	 * Internal holder of the current character set.
 	 *
-	 * @access protected
 	 * @var string
 	 */
 	public static $charset = Base32Characters::RFC3548;
@@ -143,13 +121,13 @@ class Base32{
 
 		if($rbits > 0){
 			// Excessive bits need to be padded
-			$ebits = substr($str, $length - $rbits);
-			$str = substr($str, 0, $length - $rbits).'000'.$ebits.str_repeat('0', 5 - strlen($ebits));
+			$ebits = substr($str, $length-$rbits);
+			$str = substr($str, 0, $length-$rbits).'000'.$ebits.str_repeat('0', 5-strlen($ebits));
 		}
 
 		preg_match_all('/.{8}/', $str, $chrs);
 
-		$chrs = array_map(function($str){
+		$chrs = array_map(function ($str){
 			return self::$charset[bindec($str)];
 		}, $chrs[0]);
 
@@ -167,9 +145,7 @@ class Base32{
 	 * @throws \chillerlan\Base32\Base32Exception
 	 */
 	public static function toBin($str){
-		if(!preg_match('/^['.self::$charset.']+$/', $str)){
-			throw new Base32Exception('Must match character set');
-		}
+		self::checkCharacterSet($str);
 
 		// Convert the base32 string back to a binary string
 		$str = array_map(function ($chr){
@@ -184,7 +160,7 @@ class Base32{
 		$rbits = $length&7;
 
 		if($rbits > 0){
-			$str = substr($str, 0, $length - $rbits);
+			$str = substr($str, 0, $length-$rbits);
 		}
 
 		return $str;
@@ -227,24 +203,35 @@ class Base32{
 	}
 
 	/**
-	 * @param $str
+	 * @param string $str
 	 *
 	 * @throws \chillerlan\Base32\Base32Exception
 	 */
 	protected static function checkLength($str){
-		if(strlen($str) % 8 > 0){
+		if(strlen($str)%8 > 0){
 			throw new Base32Exception('Length must be divisible by 8');
 		}
 	}
 
 	/**
-	 * @param $str
+	 * @param string $str
 	 *
 	 * @throws \chillerlan\Base32\Base32Exception
 	 */
 	protected static function checkBin($str){
 		if(!preg_match('/^[01]+$/', $str)){
 			throw new Base32Exception('Only 0 and 1 are permitted');
+		}
+	}
+
+	/**
+	 * @param string $str
+	 *
+	 * @throws \chillerlan\Base32\Base32Exception
+	 */
+	protected static function checkCharacterSet($str){
+		if(!preg_match('/^['.self::$charset.']+$/', $str)){
+			throw new Base32Exception('Must match character set');
 		}
 	}
 

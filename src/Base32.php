@@ -4,7 +4,7 @@
  * Provide Base32 conversion class
  *
  * @author    Shannon Wynter {@link http://fremnet.net/contact}
- * @version   0.3
+ * @version   0.4
  * @copyright Copyright &copy; 2006 Shannon Wynter
  * @link      http://fremnet.net
  *
@@ -26,6 +26,9 @@
  *
  * ChangeLog
  * -----------
+ * version 0.4, 2016-02-29, smiley {@link https://github.com/codemasher}
+ *  - cleanup
+ *  - separated character set class
  * version 0.3, 2015-12-06, smiley {@link https://github.com/codemasher}
  *  - static all the things!
  * version 0.2, 2008-08-07, Shannon Wynter {@link http://fremnet.net/contact}
@@ -41,8 +44,6 @@
 
 namespace chillerlan\Base32;
 
-use Exception;
-
 /**
  * Class Base32
  *
@@ -52,39 +53,6 @@ use Exception;
 class Base32{
 
 	/**
-	 * RFC3548
-	 *
-	 * The character set as defined by RFC3548
-	 *
-	 * @link http://www.ietf.org/rfc/rfc3548.txt
-	 */
-	const RFC3548 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-
-	/**
-	 * csSafe
-	 *
-	 * This character set is designed to be more human friendly
-	 * For example: i, I, L, l and 1 all map to 1
-	 * Also: there is no U - to help prevent offencive output
-	 *
-	 * @link http://www.crockford.com/wrmg/base32.html
-	 *
-	 */
-	const csSafe = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-
-	/**
-	 * cs09AV
-	 *
-	 * This character set follows the example of the hex
-	 * character set and is included to make this class
-	 * compatible with MIME::Base32
-	 *
-	 * @link http://search.cpan.org/~danpeder/MIME-Base32-1.01/Base32.pm
-	 *
-	 */
-	const cs09AV = '0123456789ABCDEFGHIJKLMNOPQRSTUV';
-
-	/**
 	 * charset
 	 *
 	 * Internal holder of the current character set.
@@ -92,7 +60,7 @@ class Base32{
 	 * @access protected
 	 * @var string
 	 */
-	public static $charset = self::RFC3548;
+	public static $charset = Base32Characters::RFC3548;
 
 	/**
 	 * setCharset
@@ -101,21 +69,16 @@ class Base32{
 	 * I've left it so that people can arbirtrarily set their
 	 * own charset
 	 *
-	 * Can be called with:
-	 * * Base32::RFC3548
-	 * * Base32::csSafe
-	 * * Base32::cs09AV
-	 *
 	 * @param string $charset The character set you want to use
 	 *
-	 * @throws \Exception
+	 * @throws \chillerlan\Base32\Base32Exception
 	 */
-	public static function setCharset($charset = self::RFC3548){
+	public static function setCharset($charset = Base32Characters::RFC3548){
 		if(strlen($charset) === 32){
 			self::$charset = strtoupper($charset);
 		}
 		else{
-			throw new Exception('Length must be exactly 32');
+			throw new Base32Exception('Length must be exactly 32');
 		}
 	}
 
@@ -142,16 +105,11 @@ class Base32{
 	 * @param string $str The string of 0's and 1's you want to convert
 	 *
 	 * @return string The ascii output
-	 * @throws \Exception
+	 * @throws \chillerlan\Base32\Base32Exception
 	 */
 	public static function bin2str($str){
-		if(strlen($str) % 8 > 0){
-			throw new Exception('Length must be divisible by 8');
-		}
-
-		if(!preg_match('/^[01]+$/', $str)){
-			throw new Exception('Only 0\'s and 1\'s are permitted');
-		}
+		self::checkLength($str);
+		self::checkBin($str);
 
 		preg_match_all('/.{8}/', $str, $chrs);
 		$chrs = array_map('bindec', $chrs[0]);
@@ -170,16 +128,11 @@ class Base32{
 	 * @param string $str The string of 0's and 1's you want to convert
 	 *
 	 * @return string String encoded as base32
-	 * @throws exception
+	 * @throws \chillerlan\Base32\Base32Exception
 	 */
 	public static function fromBin($str){
-		if(strlen($str) % 8 > 0){
-			throw new Exception('Length must be divisible by 8');
-		}
-
-		if(!preg_match('/^[01]+$/', $str)){
-			throw new Exception('Only 0\'s and 1\'s are permitted');
-		}
+		self::checkLength($str);
+		self::checkBin($str);
 
 		// Base32 works on the first 5 bits of a byte, so we insert blanks to pad it out
 		$str = preg_replace('/(.{5})/', '000$1', $str);
@@ -211,11 +164,11 @@ class Base32{
 	 * @param string $str The base32 string to convert
 	 *
 	 * @return string Ascii binary string
-	 * @throws \Exception
+	 * @throws \chillerlan\Base32\Base32Exception
 	 */
 	public static function toBin($str){
 		if(!preg_match('/^['.self::$charset.']+$/', $str)){
-			throw new Exception('Must match character set');
+			throw new Base32Exception('Must match character set');
 		}
 
 		// Convert the base32 string back to a binary string
@@ -265,12 +218,34 @@ class Base32{
 		$str = strtoupper($str);
 
 		// csSave actually has to be able to consider extra characters
-		if(self::$charset === self::csSafe){
+		if(self::$charset === Base32Characters::CROCKFORD){
 			$str = str_replace('O', '0', $str);
 			$str = str_replace(['I', 'L'], '1', $str);
 		}
 
 		return self::bin2str(self::toBin($str));
+	}
+
+	/**
+	 * @param $str
+	 *
+	 * @throws \chillerlan\Base32\Base32Exception
+	 */
+	protected static function checkLength($str){
+		if(strlen($str) % 8 > 0){
+			throw new Base32Exception('Length must be divisible by 8');
+		}
+	}
+
+	/**
+	 * @param $str
+	 *
+	 * @throws \chillerlan\Base32\Base32Exception
+	 */
+	protected static function checkBin($str){
+		if(!preg_match('/^[01]+$/', $str)){
+			throw new Base32Exception('Only 0 and 1 are permitted');
+		}
 	}
 
 }

@@ -2,7 +2,7 @@
 	"name": "chillerlan/php-base32",
 	"description": "A base32 implementation. PHP 5.6+, PHP 7",
 	"homepage": "https://github.com/codemasher/php-base32",
-	"license": "GPL",
+	"license": "MIT",
 	"keywords": [
 		"base32"
 	],

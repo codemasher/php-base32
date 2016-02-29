@@ -3,7 +3,6 @@
 [![Travis][travis-badge]][travis]
 [![Coverage][coverage-badge]][coverage]
 [![Scrunitizer][scrutinizer-badge]][scrutinizer]
-[![Issues][issue-badge]][issues]
 [![SensioLabsInsight][sensio-badge]][sensio]
 
 [packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-base32.svg
